@@ -1,4 +1,5 @@
 use std::io::{self, BufRead};
+use std::collections::HashMap;
 
 fn main() {
     let stdin = io::stdin();
@@ -9,8 +10,8 @@ fn main() {
 
     let mut count = 0;
     let mut curr = num1.clone();
-    while (curr != num2) {
-        if curr.no_decreasing_digits() && curr.adjacent_repeats() {
+    while curr != num2 {
+        if curr.no_decreasing_digits() && curr.adjacent_repeat_pair() {
             count += 1;
         }
         curr.incr();
@@ -19,7 +20,7 @@ fn main() {
     println!("{}", count);
 }
 
-#[derive(Debug, Clone, Copy, PartialOrd, PartialEq, Ord, Eq)]
+#[derive(Debug, Clone, Copy, PartialOrd, PartialEq, Ord, Eq, Hash)]
 enum Digit {
     Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine
 }
@@ -78,9 +79,16 @@ impl Number {
         }
         true
     }
-    fn adjacent_repeats(&self) -> bool {
-        for i in 1..self.digits.len() {
-            if self.digits[i-1] == self.digits[i] {
+    fn adjacent_repeat_pair(&self) -> bool {
+        let counter = self.digits.iter().fold(HashMap::new(), move |mut hm, d| {
+            match hm.get(d) {
+                None => hm.insert(d, 1),
+                Some(i) => hm.insert(d, i+1)
+            };
+            hm
+        });
+        for tally in counter.values() {
+            if *tally == 2 {
                 return true
             }
         }
