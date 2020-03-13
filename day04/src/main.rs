@@ -80,10 +80,13 @@ impl Number {
         true
     }
     fn adjacent_repeat_pair(&self) -> bool {
-        let counter = self.digits.iter().fold(HashMap::new(), move |mut hm, d| {
+        let counter = self.digits.iter().fold(HashMap::new(), |mut hm, d| {
             match hm.get(d) {
                 None => hm.insert(d, 1),
-                Some(i) => hm.insert(d, i+1)
+                Some(i) => {
+                    let j = *i;
+                    hm.insert(d, j+1)
+                }
             };
             hm
         });
