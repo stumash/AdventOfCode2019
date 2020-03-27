@@ -13,8 +13,8 @@ class OrbitalTest extends AnyFreeSpec {
   val inputFileTxtContents = Source.fromResource(inputFileNameTxt).mkString("")
   val inputFileParsedContents = Source.fromResource(inputFileNameParsed).mkString("")
 
-  """Orbitals.toOrbitalTree(fileLines, "COM")""" - {
-    s"when fileLines is set to the contents of $inputFileName" - {
+  s"when fileLines is set to the contents of $inputFileNameTxt" - {
+    """Orbitals.toOrbitalTree(fileLines, "COM")""" - {
       s"should build the OrbitalTree in test/resources/$inputFileNameParsed?" in {
         val actualOrbitalTree = Orbitals.toOrbitalTree(inputFileTxtContents.split("\n"), "COM").get
         val expectedOrbitalTree = read[OrbitalTree](inputFileParsedContents)
@@ -22,15 +22,34 @@ class OrbitalTest extends AnyFreeSpec {
         assert(actualOrbitalTree == expectedOrbitalTree)
       }
     }
-  }
 
-  "Orbitals.sumOfDepths(orbitalTree)" - {
-    s"when orbitalTree is parsed from the contents of $inputFileName" - {
+    "orbitalTree.sumOfDepths()" - {
       val expectedSumOfDepths = 42
       s"should return $expectedSumOfDepths" in {
         val orbitalTree = Orbitals.toOrbitalTree(inputFileTxtContents.split("\n"), "COM").get
 
-        assert(Orbitals.sumOfDepths(orbitalTree) == expectedSumOfDepths)
+        assert(orbitalTree.sumOfDepths() == expectedSumOfDepths)
+      }
+    }
+  }
+
+  val inputFileName2Txt = s"input_example2.txt"
+  s"when orbitalTree is parsed from the contents of $inputFileName2Txt" - {
+    val inputFile2TxtContents = Source.fromResource(inputFileName2Txt).mkString("")
+    val orbitalTree = Orbitals.toOrbitalTree(inputFile2TxtContents.split("\n"), "COM").get
+
+    """orbitalTree.pathTo("YOU")""" - {
+      val expectedPathTo = List("COM", "B", "C", "D", "E", "J", "K", "YOU")
+      s"should be $expectedPathTo" in {
+        assert(orbitalTree.pathTo("YOU").map(_.name) == expectedPathTo)
+      }
+    }
+
+    "orbitalTree.pathLengthBetween(name1, name2)" - {
+      val expectedPathLengthBetween = 4;
+      s"should return $expectedPathLengthBetween" in {
+
+        assert(orbitalTree.pathLengthBetween("YOU", "SAN") == expectedPathLengthBetween)
       }
     }
   }

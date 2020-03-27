@@ -5,7 +5,7 @@ import scala.io.StdIn
 
 object Main {
   def main(args: Array[String]): Unit = {
-    println(Orbitals.toOrbitalTree(readStdinLines(), "COM").map(Orbitals.sumOfDepths(_)))
+    println(Orbitals.toOrbitalTree(readStdinLines(), "COM").map(_.pathLengthBetween("YOU", "SAN")))
 
     def readStdinLines(): Iterable[String] = {
       val lines = ArrayBuffer[String]()
