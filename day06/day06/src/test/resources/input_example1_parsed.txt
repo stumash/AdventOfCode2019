@@ -1,0 +1,76 @@
+{
+  "$type": "day06.Orbitals.OrbitalNode",
+  "name": "COM",
+  "orbitees": [
+    {
+      "$type": "day06.Orbitals.OrbitalNode",
+      "name": "B",
+      "orbitees": [
+        {
+          "$type": "day06.Orbitals.OrbitalNode",
+          "name": "C",
+          "orbitees": [
+            {
+              "$type": "day06.Orbitals.OrbitalNode",
+              "name": "D",
+              "orbitees": [
+                {
+                  "$type": "day06.Orbitals.OrbitalNode",
+                  "name": "E",
+                  "orbitees": [
+                    {
+                      "$type": "day06.Orbitals.OrbitalNode",
+                      "name": "F",
+                      "orbitees": [
+                        
+                      ]
+                    },
+                    {
+                      "$type": "day06.Orbitals.OrbitalNode",
+                      "name": "J",
+                      "orbitees": [
+                        {
+                          "$type": "day06.Orbitals.OrbitalNode",
+                          "name": "K",
+                          "orbitees": [
+                            {
+                              "$type": "day06.Orbitals.OrbitalNode",
+                              "name": "L",
+                              "orbitees": [
+                                
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "$type": "day06.Orbitals.OrbitalNode",
+                  "name": "I",
+                  "orbitees": [
+                    
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "$type": "day06.Orbitals.OrbitalNode",
+          "name": "G",
+          "orbitees": [
+            {
+              "$type": "day06.Orbitals.OrbitalNode",
+              "name": "H",
+              "orbitees": [
+                
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
