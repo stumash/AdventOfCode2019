@@ -185,7 +185,7 @@ impl OpCode {
         &self,
         data: &mut Vec<i32>,
         i: &mut i32,
-        input: &mut dyn Iterator<Item=i32>,
+        input: &mut dyn Iterator<Item = i32>,
     ) -> Option<i32> {
         let mut jumped = false;
         let retval = match self {
@@ -209,9 +209,7 @@ impl OpCode {
                 *destAddr.getData(data) = input.next().unwrap();
                 None
             }
-            Write { opAddr1 } => {
-                Some(*opAddr1.getData(data))
-            }
+            Write { opAddr1 } => Some(*opAddr1.getData(data)),
             JumpIf { boolAddr, jumpAddr } => {
                 if *boolAddr.getData(data) != 0 {
                     *i = *jumpAddr.getData(data);
