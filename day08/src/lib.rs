@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::convert::TryFrom;
+use colored::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub struct Pixel {
     value: u8,
 }
 impl Pixel {
-    const MAX_PIXEL: u8 = 9;
+    const MAX_PIXEL: u8 = 2;
 
     fn value(&self) -> u8 {
         self.value
@@ -19,6 +20,25 @@ impl Pixel {
             .into_iter()
             .map(|pc| Pixel::from(pc))
             .collect()
+    }
+
+    fn to_colored_string(&self) -> ColoredString {
+        match self.value {
+            0 => String::from(" ").on_black(),
+            1 => String::from(" ").on_white(),
+            2 => ColoredString::from(" "),
+            _ => panic!("Pixel.to_string() failure")
+        }
+    }
+}
+impl Into<PixelChoice> for &Pixel {
+    fn into(self) -> PixelChoice {
+        match self.value {
+            0 => PixelChoice::Black,
+            1 => PixelChoice::White,
+            2 => PixelChoice::Transparent,
+            _ => panic!("whoopsy daisy")
+        }
     }
 }
 impl TryFrom<u8> for Pixel {
@@ -41,30 +61,16 @@ impl From<PixelChoice> for Pixel {
 
 #[derive(Debug)]
 pub enum PixelChoice {
-    Zero,
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
-    Seven,
-    Eight,
-    Nine,
+    Black,
+    White,
+    Transparent
 }
 impl From<PixelChoice> for u8 {
     fn from(pc: PixelChoice) -> u8 {
         match pc {
-            PixelChoice::Zero => 0u8,
-            PixelChoice::One => 1u8,
-            PixelChoice::Two => 2u8,
-            PixelChoice::Three => 3u8,
-            PixelChoice::Four => 4u8,
-            PixelChoice::Five => 5u8,
-            PixelChoice::Six => 6u8,
-            PixelChoice::Seven => 7u8,
-            PixelChoice::Eight => 8u8,
-            PixelChoice::Nine => 9u8,
+            PixelChoice::Black => 0u8,
+            PixelChoice::White => 1u8,
+            PixelChoice::Transparent => 2u8
         }
     }
 }
@@ -72,16 +78,9 @@ impl PixelChoice {
     #[cfg(test)]
     fn values() -> Vec<PixelChoice> {
         vec![
-            PixelChoice::Zero,
-            PixelChoice::One,
-            PixelChoice::Two,
-            PixelChoice::Three,
-            PixelChoice::Four,
-            PixelChoice::Five,
-            PixelChoice::Six,
-            PixelChoice::Seven,
-            PixelChoice::Eight,
-            PixelChoice::Nine,
+            PixelChoice::Black,
+            PixelChoice::White,
+            PixelChoice::Transparent
         ]
     }
 }
@@ -126,6 +125,53 @@ impl PixelGrid {
 
         pixel_counts.values().fold(1u64, |x, y| x * (*y as u64))
     }
+    pub fn dims(&self) -> (usize, usize) {
+        (self.m_rows, self.n_cols)
+    }
+    pub fn get(&self, i: usize, j: usize) -> Option<Pixel> {
+        self.grid.get(i)?.get(j).cloned()
+    }
+    pub fn to_string(&self) -> String {
+        let mut s = String::new();
+        for row in self.grid.iter() {
+            for p in row {
+                s.push_str(format!("{}",p.to_colored_string()).as_str());
+            }
+            s.push_str("\n");
+        }
+        s
+    }
+}
+impl From<Vec<PixelGrid>> for PixelGrid {
+    fn from(pixel_grids: Vec<PixelGrid>) -> PixelGrid {
+        let (m, n) = pixel_grids.get(0).unwrap().dims();
+
+        let mut result_grid: Vec<Vec<Pixel>> = Vec::new();
+
+        for i in 0..m {
+            let mut row = Vec::new();
+            for j in 0..n {
+                row.push(pixel_grids
+                    .iter()
+                    .map(|pg| pg.get(i, j).unwrap())
+                    .fold(Pixel::from(PixelChoice::Transparent), |p1, p2| {
+                        match (&p1).into() {
+                            PixelChoice::Transparent => p2,
+                            PixelChoice::White => p1,
+                            PixelChoice::Black => p1
+                        }
+                    })
+                );
+            }
+            result_grid.push(row);
+        }
+
+        PixelGrid::try_from(PixelGridInputs {
+            m: (m as u16),
+            n: (n as u16),
+            data: result_grid.iter().flatten().cloned().collect()
+        }).unwrap()
+    }
 }
 
 pub struct PixelGridInputs {
@@ -165,7 +211,7 @@ mod pixel_grid_tests {
     #[test]
     fn init_all_zeros() {
         fn zero_pixel() -> Pixel {
-            Pixel::from(PixelChoice::Zero)
+            Pixel::from(PixelChoice::Black)
         }
         fn all_other_pixels(exempt: Pixel) -> HashSet<Pixel> {
             HashSet::from_iter(Pixel::values().into_iter().filter(|p| *p != exempt))
@@ -188,7 +234,9 @@ mod pixel_grid_tests {
     }
 
     #[test]
-    fn part1() {
+    fn part2() {
+        // get pixel grids
+
         let pixels: Vec<Pixel> = std::fs::read_to_string("./data/part1.txt")
             .unwrap()
             .trim()
@@ -222,19 +270,11 @@ mod pixel_grid_tests {
             );
         }
 
-        let pg_least_zeros = pixel_grids.iter().min_by(|pg1, pg2| {
-            let pg1_zeros = pg1.count_pixel(Pixel::from(PixelChoice::Zero));
-            let pg2_zeros = pg2.count_pixel(Pixel::from(PixelChoice::Zero));
-            pg1_zeros.cmp(&pg2_zeros)
-        }).unwrap();
+        // create composite pixel_grid
+        let final_pg = PixelGrid::from(pixel_grids);
+        println!("{}", final_pg.to_string().as_str());
+        // prints HGBCF
 
-        let pixel_one_and_two = {
-            let mut v: HashSet<Pixel> = HashSet::new();
-            v.insert(Pixel::from(PixelChoice::One));
-            v.insert(Pixel::from(PixelChoice::Two));
-            v
-        };
-
-        assert_eq!(2904, pg_least_zeros.prod_count_pixels(&pixel_one_and_two));
+        assert!(true)
     }
 }
