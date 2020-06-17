@@ -88,7 +88,7 @@ mod tests {
     }
     #[test]
     fn part_1() {
-        let data: Vec<i64> = std::fs::read_to_string("data/part1.txt")
+        let data: Vec<i64> = std::fs::read_to_string("data/input.txt")
             .unwrap()
             .lines()
             .next()
@@ -98,5 +98,18 @@ mod tests {
             .collect();
         let output = run_program(vec![1], data);
         assert_eq!(*output.get(0).unwrap(), 3507134798);
+    }
+    #[test]
+    fn part_2() {
+        let data: Vec<i64> = std::fs::read_to_string("data/input.txt")
+            .unwrap()
+            .lines()
+            .next()
+            .unwrap()
+            .split(",")
+            .map(|s| s.parse().unwrap())
+            .collect();
+        let output = run_program(vec![2], data);
+        assert_eq!(*output.get(0).unwrap(), 84513);
     }
 }
